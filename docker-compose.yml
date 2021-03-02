@@ -1,0 +1,66 @@
+version: '3.5'
+
+services:
+  server:
+    build: server/
+    ports:
+      - '${SERVER_PORT}:${SERVER_PORT}'
+    environment:
+      - SERVER_HOSTNAME
+      - SERVER_PORT
+      - API_HOSTNAME
+      - API_PORT
+    networks:
+      - movie_service
+    depends_on:
+      - api
+    restart: unless-stopped
+  api:
+    build: api/
+    expose:
+      - '${API_PORT}'
+    environment:
+      - API_PORT
+      - API_VERSION
+      - DATABASE_HOSTNAME
+      - DATABASE_PORT
+      - DATOMIC_PASSWORD_FILE=/run/secrets/database_peer_password
+    secrets:
+      - database_peer_password
+    networks:
+      movie_service:
+        aliases:
+          - ${API_HOSTNAME}
+    depends_on:
+      - database
+    restart: unless-stopped
+  database:
+    build: database/
+    expose:
+      - '${DATABASE_PORT}'
+    environment:
+      - DATOMIC_PORT=${DATABASE_PORT}
+      - ADMIN_PASSWORD_FILE=/run/secrets/database_transactor_password
+      - DATOMIC_PASSWORD_FILE=/run/secrets/database_peer_password
+    secrets:
+      - database_transactor_password
+      - database_peer_password
+    volumes:
+      - database:/usr/bin/database/data/
+    networks:
+      movie_service:
+        aliases:
+          - ${DATABASE_HOSTNAME}
+    restart: unless-stopped
+
+secrets:
+  database_transactor_password:
+    file: 'secrets/database_transactor_password'
+  database_peer_password:
+    file: 'secrets/database_peer_password'
+
+volumes:
+  database:
+
+networks:
+  movie_service:
