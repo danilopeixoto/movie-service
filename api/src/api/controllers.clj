@@ -1,32 +1,27 @@
 (ns api.controllers
-  (:require [datomic.api :as datomic]))
+  (:require [api.database :as database]))
 
 
-(def hostname (System/getenv "DATABASE_HOSTNAME"))
-(def port (System/getenv "DATABASE_PORT"))
-(def password (slurp (System/getenv "DATOMIC_PASSWORD_FILE")))
+(def connection (database/connect))
 
-(def uri (format "datomic:free://%s:%s/database?password=%s"
-                 hostname port password))
-
-(def connection (datomic/connect uri))
+(database/create-models connection)
 
 (defn add-movie
-  [movie]
-  ())
+  [movie-request]
+  {:id "bf9b863c-7c28-11eb-9439-0242ac130002" :title "Her" :year 2013})
 
 (defn get-movie
   [id]
-  ())
+  {:id "bf9b863c-7c28-11eb-9439-0242ac130002" :title "Her" :year 2013})
 
 (defn list-movies
   [title]
-  ())
+  [{:id "bf9b863c-7c28-11eb-9439-0242ac130002" :title "Her" :year 2013}])
 
 (defn update-movie
-  [id movie]
-  ())
+  [id movie-request]
+  {:id "bf9b863c-7c28-11eb-9439-0242ac130002" :title "Her" :year 2013})
 
 (defn delete-movie
   [id]
-  ())
+  {:id "bf9b863c-7c28-11eb-9439-0242ac130002" :title "Her" :year 2013})

@@ -39,7 +39,9 @@ services:
     expose:
       - '${DATABASE_PORT}'
     environment:
+      - ALT_HOST=${DATABASE_HOSTNAME}
       - DATOMIC_PORT=${DATABASE_PORT}
+      - ENCRYPT_CHANNEL=false
       - ADMIN_PASSWORD_FILE=/run/secrets/database_transactor_password
       - DATOMIC_PASSWORD_FILE=/run/secrets/database_peer_password
     secrets:

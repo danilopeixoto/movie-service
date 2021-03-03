@@ -1,4 +1,4 @@
-FROM nginx:1.18.0-alpine
+FROM nginx:1.18.0
 
 LABEL description "A movie web server."
 LABEL version "1.0.0"
@@ -10,6 +10,8 @@ COPY docker-entrypoint.sh .
 COPY nginx.conf.template /etc/nginx/
 
 RUN chmod +x docker-entrypoint.sh
+
+EXPOSE 80
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM openjdk:17-buster
 
 LABEL description "A database server."
 LABEL version "1.0.0"
@@ -21,6 +21,8 @@ RUN cp config/samples/free-transactor-template.properties transactor.properties
 
 RUN sed "s/host=localhost/host=0.0.0.0/" -i transactor.properties
 RUN sed "s/# storage-access=local/storage-access=remote/" -i transactor.properties
+
+EXPOSE 4334 4335 4336
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["bin/transactor", "transactor.properties"]

@@ -1,47 +1,55 @@
 (ns api.routes
-  (:require [compojure.api.sweet :refer :all]
+  (:require [clojure.string :as str]
+            [environ.core :as env]
+            [compojure.api.sweet :refer :all]
             [ring.util.http-response :refer :all]
-            [api.models :as models]
+            [schema.core :as schema]
+            [api.schemas :as schemas]
             [api.controllers :as controllers]))
 
+
+(def version (env/env :api-version))
+
+(def path-version
+  (str "v" (first (str/split version #"\."))))
 
 (def app
   (api
     {:swagger
-      {:ui "/v1/docs"
-       :spec "/v1/docs/swagger.json"
+      {:ui (format "/%s/docs" path-version)
+       :spec (format "/%s/docs/swagger.json" path-version)
        :data {:info {:title "Movie API"
                      :description "A movie web API."
-                     :version "1.0.0"}}}}
+                     :version version}}}}
 
-  (context "/v1/api" []
-    (POST "/" []
-      :return models/Movie
-      :body [movie models/MovieRequest]
-      :summary "Add new movie."
-      (ok (controllers/add-movie! movie)))
+    (context (format "/%s/api" path-version) []
+      (POST "/" []
+        :return schemas/Movie
+        :body [movie-request schemas/MovieRequest]
+        :summary "Add new movie."
+        (ok (controllers/add-movie movie-request)))
 
-    (GET "/:id" []
-      :return models/Movie
-      :path-params [id :- Long]
-      :summary "Get movie by ID."
-      (ok (controllers/get-movie! id)))
+      (GET "/:id" []
+        :return schemas/Movie
+        :path-params [id :- schema/Uuid]
+        :summary "Get movie by ID."
+        (ok (controllers/get-movie id)))
 
-    (GET "/" []
-      :return [models/Movie]
-      :query-params [title :- String]
-      :summary "Search movies by name."
-      (ok (controllers/list-movies! title)))
+      (GET "/" []
+        :return [schemas/Movie]
+        :query-params [{title :- schema/Str nil}]
+        :summary "List and search movies by name."
+        (ok (controllers/list-movies title)))
 
-    (PUT "/:id" []
-      :return models/Movie
-      :path-params [id :- Long]
-      :body [movie models/MovieRequest]
-      :summary "Update movie by ID."
-      (ok (controllers/update-movie! id movie)))
+      (PUT "/:id" []
+        :return schemas/Movie
+        :path-params [id :- schema/Uuid]
+        :body [movie-request schemas/MovieRequest]
+        :summary "Update movie by ID."
+        (ok (controllers/update-movie id movie-request)))
 
-    (DELETE "/:id" []
-      :return models/Movie
-      :path-params [id :- Long]
-      :summary "Delete movie by ID."
-      (ok (controllers/delete-movie! id))))))
+      (DELETE "/:id" []
+        :return schemas/Movie
+        :path-params [id :- schema/Uuid]
+        :summary "Delete movie by ID."
+        (ok (controllers/delete-movie id))))))
