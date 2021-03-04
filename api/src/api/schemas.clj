@@ -2,12 +2,12 @@
   (:require [schema.core :as schema]))
 
 
-(schema/defschema Year
-  (schema/constrained schema/Int #(>= % 0)))
+(schema/defschema ReleaseYear
+  (schema/constrained schema/Int #(>= % 0) 'ReleaseYear))
 
 (schema/defschema Movie {:id schema/Uuid
                          :title schema/Str
-                         :year Year})
+                         :release-year ReleaseYear})
 
 (schema/defschema MovieRequest {:title schema/Str
-                                :year Year})
+                                :release-year ReleaseYear})

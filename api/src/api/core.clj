@@ -2,11 +2,12 @@
   (:require [environ.core :as env]
             [ring.adapter.jetty :refer [run-jetty]]
             [api.database :as database]
-            [api.routes :as routes]))
+            [api.routes :as routes])
+  (:gen-class))
 
 
 (defn get-port []
-  (env/env :api-port))
+  (-> :api-port env/env Integer/valueOf))
 
 (defn -main
   [& args]

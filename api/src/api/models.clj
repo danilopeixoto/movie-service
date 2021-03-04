@@ -12,9 +12,9 @@
    :db/cardinality :db.cardinality/one
    :db/doc "Movie title attribute."}
 
-  {:db/ident :movie/year
-   :db/valueType :db.type/bigint
+  {:db/ident :movie/release-year
+   :db/valueType :db.type/long
    :db/cardinality :db.cardinality/one
-   :db/doc "Movie year attribute."}])
+   :db/doc "Movie release year attribute."}])
 
 (def models (-> [Movie] flatten vec))
