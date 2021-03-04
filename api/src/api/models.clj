@@ -17,4 +17,4 @@
    :db/cardinality :db.cardinality/one
    :db/doc "Movie year attribute."}])
 
-(def Models (vec (concat Movie)))
+(def models (-> [Movie] flatten vec))

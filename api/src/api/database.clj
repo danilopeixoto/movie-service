@@ -1,20 +1,25 @@
 (ns api.database
-  (:require [clojure.string :as str]
-            [environ.core :as env]
+  (:require [environ.core :as env]
             [datomic.api :as datomic]
             [api.models :as models]))
 
 
-(def hostname (env/env :database-hostname))
-(def port (env/env :database-port))
-(def password (str/trim (slurp (env/env :datomic-password-file))))
+(defn get-hostname []
+  (env/env :database-hostname))
 
-(def uri (format "datomic:free://%s:%s/database?password=%s"
-                 hostname port password))
+(defn get-port []
+  (env/env :database-port))
 
-(defn connect []
-  (datomic/create-database uri)
-  (datomic/connect uri))
+(defn get-password []
+  (-> :datomic-password-file env/env slurp .trim))
+
+(defn get-uri []
+  (format "datomic:free://%s:%s/database?password=%s"
+          (get-hostname) (get-port) (get-password)))
+
+(defn get-connection []
+  (datomic/create-database (get-uri))
+  (datomic/connect (get-uri)))
 
 (defn create-models [connection]
-  (datomic/transact connection models/Models))
+  (datomic/transact connection models/models))

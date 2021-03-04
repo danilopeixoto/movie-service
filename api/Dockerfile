@@ -1,4 +1,4 @@
-FROM clojure:lein-2.8.0-alpine
+FROM clojure:lein-2.8.0
 
 LABEL description "A movie web API."
 LABEL version "1.0.0"
@@ -8,8 +8,8 @@ WORKDIR /usr/bin/api/
 
 COPY . .
 
-RUN lein ring uberjar
+RUN lein uberjar
 
 EXPOSE 3000
 
-CMD ["java", "-jar", "target/api.jar"]
+CMD ["java", "-jar", "target/uberjar/api-1.0.0-standalone.jar"]

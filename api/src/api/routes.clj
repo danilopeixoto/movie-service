@@ -1,6 +1,5 @@
 (ns api.routes
-  (:require [clojure.string :as str]
-            [environ.core :as env]
+  (:require [environ.core :as env]
             [compojure.api.sweet :refer :all]
             [ring.util.http-response :refer :all]
             [schema.core :as schema]
@@ -8,21 +7,22 @@
             [api.controllers :as controllers]))
 
 
-(def version (env/env :api-version))
+(defn get-version []
+  (env/env :api-version))
 
-(def path-version
-  (str "v" (first (str/split version #"\."))))
+(defn get-path-version []
+  (str "v" (-> (get-version) (.split "\\.") first)))
 
 (def app
   (api
     {:swagger
-      {:ui (format "/%s/docs" path-version)
-       :spec (format "/%s/docs/swagger.json" path-version)
+      {:ui (format "/%s/docs" (get-path-version))
+       :spec (format "/%s/docs/swagger.json" (get-path-version))
        :data {:info {:title "Movie API"
                      :description "A movie web API."
-                     :version version}}}}
+                     :version (get-version)}}}}
 
-    (context (format "/%s/api" path-version) []
+    (context (format "/%s/api" (get-path-version)) []
       (POST "/" []
         :return schemas/Movie
         :body [movie-request schemas/MovieRequest]
