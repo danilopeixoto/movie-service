@@ -67,12 +67,4 @@
         :summary "Update movie by ID."
         (if-let [movie (controllers/update-movie id movie-request)]
           (response/ok movie)
-          (response/not-found {:message "Invalid resource ID."})))
-
-      (DELETE "/:id" []
-        :return schemas/Movie
-        :path-params [id :- schema/Uuid]
-        :summary "Delete movie by ID."
-        (if-let [movie (controllers/delete-movie id)]
-          (response/ok movie)
           (response/not-found {:message "Invalid resource ID."}))))))

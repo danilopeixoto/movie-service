@@ -47,12 +47,25 @@
           (-> (database/get-connection) datomic/db))]
         (utils/to-map [:id :title :release-year] results)))
 
-; TODO: implement update and delete movie.
+(defn get-movie-real-id
+  [id]
+  (first (datomic/q '[:find ?e
+      :in $ ?id
+      :where [?e :movie/id ?id]]
+    (-> (database/get-connection) datomic/db)
+    id)))
 
 (defn update-movie
   [id movie-request]
-  {:id "bf9b863c-7c28-11eb-9439-0242ac130000" :title "Her" :release-year 2013})
-
-(defn delete-movie
-  [id]
-  {:id "bf9b863c-7c28-11eb-9439-0242ac130001" :title "Oblivion" :release-year 2013})
+  (if-let [real-id (ffirst (datomic/q '[:find ?e
+              :in $ ?id
+              :where [?e :movie/id ?id]]
+            (-> (database/get-connection) datomic/db)
+            id))]
+          (do @(datomic/transact
+                (database/get-connection)
+                [{:db/id real-id
+                  :movie/title (movie-request :title)
+                  :movie/release-year (movie-request :release-year)}])
+              (get-movie id))
+          nil))
