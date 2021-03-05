@@ -2,6 +2,7 @@
   (:require [environ.core :as env]
             [compojure.api.sweet :refer :all]
             [compojure.api.exception :as exception]
+            [compojure.route :as route]
             [humanize.schema :as humanize]
             [ring.util.http-response :as response]
             [schema.core :as schema]
@@ -23,13 +24,14 @@
             (clojure.core.match/match
               x
               ['not ['ReleaseYear xx]]
-              (str xx " is not a valid release year.")
+              (str xx " is not a valid release year (positive integer).")
               :else x))) :type))))
 
 (def app
   (api
     {:exceptions {:handlers
-      {::exception/request-validation (humanize-handler response/bad-request)}}
+      {::exception/request-validation
+        (humanize-handler response/bad-request)}}
     :swagger
       {:ui (format "/%s/docs" (get-path-version))
        :spec (format "/%s/docs/swagger.json" (get-path-version))
@@ -50,7 +52,7 @@
         :summary "Get movie by ID."
         (if-let [movie (controllers/get-movie id)]
           (response/ok movie)
-          (response/not-found {:message "Invalid resource ID."})))
+          (response/not-found {:error "Resource not found."})))
 
       (GET "/" []
         :return [schemas/Movie]
@@ -67,4 +69,7 @@
         :summary "Update movie by ID."
         (if-let [movie (controllers/update-movie id movie-request)]
           (response/ok movie)
-          (response/not-found {:message "Invalid resource ID."}))))))
+          (response/not-found {:error "Resource not found."}))))
+    (undocumented
+      (route/not-found
+        (response/not-found {:error "API route not found."})))))

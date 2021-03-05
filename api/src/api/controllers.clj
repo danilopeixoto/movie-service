@@ -4,7 +4,7 @@
             [api.database :as database]))
 
 
-; Note: query :keys argument requires
+; Note: :keys query argument requires
 ; com.datomic/datomic-free >= 0.9.5930 (not available).
 
 (defn get-movie
@@ -46,14 +46,6 @@
                    [?e :movie/release-year ?release-year]]
           (-> (database/get-connection) datomic/db))]
         (utils/to-map [:id :title :release-year] results)))
-
-(defn get-movie-real-id
-  [id]
-  (first (datomic/q '[:find ?e
-      :in $ ?id
-      :where [?e :movie/id ?id]]
-    (-> (database/get-connection) datomic/db)
-    id)))
 
 (defn update-movie
   [id movie-request]
