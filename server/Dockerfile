@@ -1,6 +1,6 @@
 FROM nginx:1.18.0
 
-LABEL description "A movie web server."
+LABEL description "A web server."
 LABEL version "1.0.0"
 LABEL maintainer "Danilo Peixoto"
 
