@@ -77,7 +77,7 @@
         :summary "Delete movie by ID."
         (if-let [movie (controllers/delete-movie id)]
           (response/ok movie)
-          (response/not-found {:error "API route not found."}))))
+          (response/not-found {:error "Resource not found."}))))
     (undocumented
       (route/not-found
         (response/not-found {:error "API route not found."})))))
