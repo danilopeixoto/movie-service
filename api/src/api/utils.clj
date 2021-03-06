@@ -1,6 +1,7 @@
 (ns api.utils)
 
 
-(defn to-map [keys values]
+(defn to-map
+  [values & keys]
   (vec (map #(apply assoc {} (interleave keys %))
-       values)))
+            values)))

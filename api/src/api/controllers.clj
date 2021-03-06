@@ -7,16 +7,20 @@
 ; Note: :keys query argument requires
 ; com.datomic/datomic-free >= 0.9.5930 (not available).
 
-(defn get-movie
+(defn get-movie-entity
   [id]
-  (let [results (datomic/q '[:find ?id ?title ?release-year
+  (let [results (datomic/q '[:find ?e ?id ?title ?release-year
             :in $ ?id
             :where [?e :movie/id ?id]
                    [?e :movie/title ?title]
                    [?e :movie/release-year ?release-year]]
           (-> (database/get-connection) datomic/db)
           id)]
-        (first (utils/to-map [:id :title :release-year] results))))
+        (first (utils/to-map results :e :id :title :release-year))))
+
+(defn get-movie
+  [id]
+  (dissoc (get-movie-entity id) :e))
 
 (defn add-movie
   [movie-request]
@@ -36,7 +40,7 @@
                    [?e :movie/release-year ?release-year]]
           (-> (database/get-connection) datomic/db)
           title)]
-        (utils/to-map [:id :title :release-year] results)))
+        (utils/to-map results :id :title :release-year)))
 
 (defn list-movies
   []
@@ -45,19 +49,24 @@
                    [?e :movie/title ?title]
                    [?e :movie/release-year ?release-year]]
           (-> (database/get-connection) datomic/db))]
-        (utils/to-map [:id :title :release-year] results)))
+        (utils/to-map results :id :title :release-year)))
 
 (defn update-movie
   [id movie-request]
-  (if-let [real-id (ffirst (datomic/q '[:find ?e
-              :in $ ?id
-              :where [?e :movie/id ?id]]
-            (-> (database/get-connection) datomic/db)
-            id))]
+  (if-let [movie-entity (get-movie-entity id)]
           (do @(datomic/transact
                 (database/get-connection)
-                [{:db/id real-id
+                [{:db/id (movie-entity :e)
                   :movie/title (movie-request :title)
                   :movie/release-year (movie-request :release-year)}])
               (get-movie id))
+          nil))
+
+(defn delete-movie
+  [id]
+  (if-let [movie-entity (get-movie-entity id)]
+          (do @(datomic/transact
+                (database/get-connection)
+                [[:db/retractEntity (movie-entity :e)]])
+              (dissoc movie-entity :e))
           nil))

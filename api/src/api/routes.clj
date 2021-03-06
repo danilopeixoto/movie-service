@@ -69,7 +69,15 @@
         :summary "Update movie by ID."
         (if-let [movie (controllers/update-movie id movie-request)]
           (response/ok movie)
-          (response/not-found {:error "Resource not found."}))))
+          (response/not-found {:error "Resource not found."})))
+
+      (DELETE "/:id" []
+        :return schemas/Movie
+        :path-params [id :- schema/Uuid]
+        :summary "Delete movie by ID."
+        (if-let [movie (controllers/delete-movie id)]
+          (response/ok movie)
+          (response/not-found {:error "API route not found."}))))
     (undocumented
       (route/not-found
         (response/not-found {:error "API route not found."})))))
